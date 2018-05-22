@@ -9,22 +9,32 @@ public class HungarianAlgorithm {
 		//dummy array to test with
 		int[][] arr1 = { { 0, 1, 0, 1, 1 }, { 1, 1, 0, 1, 1 }, { 1, 0, 0, 0, 1 },
                 { 1, 1, 0, 1, 1 }, { 1, 0, 0, 1, 0 } };
-		drawLines(arr1);
+		minVertCover(arr1);
 	}
 	
-	//master-method to draw min-vertex cover lines over the previously-0'd array arr
-	public static int[][] drawLines(int[][] arr){
-		int n = arr.length;
-		int[][] arr1 = new int[n][n];
-		int[][] arr2 = new int[n][n];
+	//step 3
+	//Method to draw min-vertex cover lines over the previously-0'd array arr
+	public static int[][] minVertCover(int[][] arr1){
+		int n = arr1.length; //arr1 is the master array of values, already containing some 0's after steps 1 and 2
+		int[][] arr2 = new int[n][n]; //arr2 holds the number of 0's horizontally or vertically adjacent to the index (whichever is higher)
+		int[][] arr3 = new int[n][n]; //arr3 holds the lines drawn over the array.
 		
 		for (int i = 0; i < n; i++){
 			for (int j = 0; j < n; j++){
-				if (arr[i][j] == 0)
-					arr1[i][j] = hvHigh (arr, i, j);
+				if (arr1[i][j] == 0)
+					arr2[i][j] = hvHigh (arr1, i, j);
 			}
 		}
-		printArray(arr1);
+		printArray(arr2);
+		
+		for (int i = 0; i < n; i++){
+			for (int j = 0; j < n; j++){
+				if (arr2[i][j] != 0 )
+					drawLines(arr2, arr3, i, j);
+			}
+		}
+		
+		printArray(arr3);
 		
 		return null;
 	}
@@ -53,9 +63,25 @@ public class HungarianAlgorithm {
 		} else{
 			return 0;
 		}
-		
-		
-		
+	}
+	
+	public static void drawLines(int[][] arr2, int[][] arr3, int row, int col){
+		//positive value = vertical line
+		int num = arr2[row][col];
+		if (arr2[row][col] > 0){
+			for (int i = 0; i < arr2.length; i++){
+				if (arr2[i][col] > 0)
+					arr2[i][col] = 0;
+				arr3[i][col] = 1;
+			}
+			//negative value = horizontal line
+		} else {
+			for(int i = 0; i < arr2.length; i++){
+				if (arr2[row][i] < 0)
+					arr2[row][i] = 0;
+				arr3[row][i] = 1;
+			}
+		}
 	}
 	
 	//Prints the contents of a 2D array to the console
