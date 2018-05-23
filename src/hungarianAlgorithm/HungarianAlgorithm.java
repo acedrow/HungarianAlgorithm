@@ -3,6 +3,8 @@ package hungarianAlgorithm;
 public class HungarianAlgorithm {
 	
 	public static int MAXVALUE = 100;
+	
+	public static int lineCount = 0;
 
 	public static void main (String[] args){
 		//subtractLowest for parts 1 to 2
@@ -13,7 +15,10 @@ public class HungarianAlgorithm {
           //      { 1, 1, 0, 1, 1 }, { 1, 0, 0, 1, 0 } };
 		int[][] arr1 = { { 56, 23, 89, 1, 3 }, { 7, 14, 75, 90, 22 }, { 9, 47, 50, 12, 84 },
                 { 32, 51, 94, 29, 16 }, { 6, 7, 30, 85, 99 } };
-		arr1 = subMin(arr1);
+		
+		printArray(arr1);
+		subMin(arr1);
+		printArray(arr1);
 		minVertCover(arr1);
 	}
 	
@@ -58,7 +63,7 @@ public class HungarianAlgorithm {
 	public static int[][] minVertCover(int[][] arr1){
 		int n = arr1.length; //arr1 is the master array of values, already containing some 0's after steps 1 and 2
 		int[][] arr2 = new int[n][n]; //arr2 holds the number of 0's horizontally or vertically adjacent to the index (whichever is higher)
-		int[][] arr3 = new int[n][n]; //arr3 holds the lines drawn over the array.
+		int[][] arr3 = new int[n][n]; //arr3 holds the lines drawn over the array - 1's drawn on an array of 0's
 		
 		for (int i = 0; i < n; i++){
 			for (int j = 0; j < n; j++){
@@ -74,42 +79,66 @@ public class HungarianAlgorithm {
 					drawLines(arr2, arr3, i, j);
 			}
 		}
-		
+		if (lineCount == n){
+			//find assignment return, (verify with brute force)
+		} else{
+			//do step 5
+		}
 		printArray(arr3);
 		
 		return null;
 	}
 	
-	public static int hvHigh (int[][] arr, int x, int y){
+	//step 5
+	//only called if number of lines < n - a match hasn't been found
+	//find the smallest entry no  covered, subtract it from each not-covered row,
+	//add it to each covered column, return to minVertCover
+	public static int[][] leastNotCovered (int[][] arr1, int[][] arr3){
+		int min = MAXVALUE + 1;
+		for (int row = 0; row < arr1.length; row++){
+			for (int col = 0; col < arr1.length; col++){
+				if (arr1[row][col] < min && arr1[row][col] > 0 && arr3[row][col] == 0){
+					min = arr1[row][col];
+				}
+			}
+		}
+		return arr1;
+	}
+	
+	//called for each 0 in the subtracted array, tallies the number of 0's adjacent to the index horizontally and vertically
+	public static int hvHigh (int[][] arr, int row, int col){
 		//counter ints to hold the running tally of horizontal and vertical 0's
 		int cx = 0;
 		int cy = 0;
 		//tally 0's in the corresponding row
 		for (int i = 0; i < arr.length; i++){
-			if (arr[x][i] == 0)
+			if (arr[row][i] == 0)
 				cx++;
 		}
 		//tally 0's in the corresponding column
 		for (int i = 0; i < arr.length; i++){
-			if (arr[i][y] == 0)
+			if (arr[i][col] == 0)
 				cy++;
 		}
 		
-		//if more 0's on x (horizontal), change to negative and return
+		//if more 0's on x (horizontal), change to negative and return, if equal # or no adjacent zeros, draw horizontal line
 		if (cx > cy){
 			cx *= -1;
 			return cx;
 		} else if (cy > cx){
 			return cy;
 		} else{
-			return 0;
+			return -1;
 		}
 	}
 	
 	public static void drawLines(int[][] arr2, int[][] arr3, int row, int col){
+		
 		//positive value = vertical line
-		int num = arr2[row][col];
+		// int num = arr2[row][col];
+		
 		if (arr2[row][col] > 0){
+			lineCount++;
 			for (int i = 0; i < arr2.length; i++){
 				if (arr2[i][col] > 0)
 					arr2[i][col] = 0; //0 out similar values in the same row/column to avoid unnecessary line-drawing
@@ -117,6 +146,7 @@ public class HungarianAlgorithm {
 			}
 			//negative value = horizontal line
 		} else {
+			lineCount++;
 			for(int i = 0; i < arr2.length; i++){
 				if (arr2[row][i] < 0)
 					arr2[row][i] = 0;
