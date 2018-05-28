@@ -16,10 +16,18 @@ public class HungarianAlgorithm {
 		int[][] arr1 = { { 56, 23, 89, 1, 3 }, { 7, 14, 75, 90, 22 }, { 9, 47, 50, 12, 84 },
                 { 32, 51, 94, 29, 16 }, { 6, 7, 30, 85, 99 } };
 		
+		int[][]arr3;
+		
 		printArray(arr1);
 		subMin(arr1);
 		printArray(arr1);
-		minVertCover(arr1);
+		arr3 = minVertCover(arr1);
+		printArray(arr3);
+		
+		//if (numLines < n)
+			//leastNotCovered(arr1, arr3);
+		//else
+			//findSolution();
 	}
 	
 	//covers steps 1 and 2:
@@ -86,15 +94,16 @@ public class HungarianAlgorithm {
 		}
 		printArray(arr3);
 		
-		return null;
+		return arr3;
 	}
 	
 	//step 5
 	//only called if number of lines < n - a match hasn't been found
-	//find the smallest entry no  covered, subtract it from each not-covered row,
+	//find the smallest entry not covered, subtract it from each not-covered row,
 	//add it to each covered column, return to minVertCover
 	public static int[][] leastNotCovered (int[][] arr1, int[][] arr3){
 		int min = MAXVALUE + 1;
+		//for loops to find minimum not-covered value
 		for (int row = 0; row < arr1.length; row++){
 			for (int col = 0; col < arr1.length; col++){
 				if (arr1[row][col] < min && arr1[row][col] > 0 && arr3[row][col] == 0){
@@ -102,10 +111,44 @@ public class HungarianAlgorithm {
 				}
 			}
 		}
+		//loop through all rows, 
+		for (int row = 0; row < arr1.length; row++){
+			int col = 0;
+			boolean covered = true;
+			//if the row has any value != 1 in arr3, it's not covered
+			while (covered && col < arr3.length){
+				if (arr3[row][col] != 1)
+					covered = false;
+				col++;
+			}
+			//subtract the previously found minimum value from every value in a non-covered row.
+			if (!covered)
+				for (int c = 0; c < arr1.length; c++){
+					arr1[row][c] -= min;
+				}
+			}
+		
+		//loop through all columns
+		for (int col = 0; col < arr1.length; col++){
+			int row = 0;
+			boolean covered = true;
+			//if the column has any value != 1 in arr3, it's not covered
+			while (covered && col < arr3.length){
+				if (arr3[row][col] != 1)
+					covered = false;
+				row++;
+			}
+			//if the column is covered, add the minimum value to each value in the column
+			if (covered)
+				for (int r = 0; r < arr1.length; r++){
+					arr1[r][col] += min;
+				}
+		}
+		
 		return arr1;
 	}
 	
-	//called for each 0 in the subtracted array, tallies the number of 0's adjacent to the index horizontally and vertically
+	//called for each value of 0 in the subtracted array, tallies the number of 0's adjacent to the index horizontally and vertically
 	public static int hvHigh (int[][] arr, int row, int col){
 		//counter ints to hold the running tally of horizontal and vertical 0's
 		int cx = 0;
