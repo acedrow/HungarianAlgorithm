@@ -1,17 +1,12 @@
 package hungarianAlgorithm;
-
 public class HungarianAlgorithm {
 	
-
-
     /*The Hungarian Method:
-
        1. Subtract the smallest entry in each row from all the other entries in the row. This will make the smallest entry in the row now equal to 0.
        2. Subtract the smallest entry in each column from all the other entries in the column. This will make the smallest entry in the column now equal to 0.
        3. Draw lines through the row and columns that have the 0 entries such that the fewest lines possible are drawn.
        4. If there are lines drawn, an optimal assignment of zeros is possible and the algorithm is finished. If the number of lines is less than , then the optimal number of zeroes is not yet reached. Go to the next step.
        5. Find the smallest entry not covered by any line. Subtract this entry from each row that isn’t crossed out, and then add it to each column that is crossed out. Then, go back to Step 3.
-
 */
 	public static int MAXVALUE = 100;
 	public static int lineCount = 0;
@@ -32,9 +27,12 @@ public class HungarianAlgorithm {
 		printArray(arr1);
 		//STEPS 1 and 2
 		subMin(arr1);
-		
+		int pass = 1;
 		
 		do {
+			System.out.println("----------------------------------");
+			System.out.println("PASS: " + pass);
+			System.out.println("----------------------------------");
 			lineCount = 0;
 			printArray(arr1);
 			//STEP 3
@@ -44,16 +42,10 @@ public class HungarianAlgorithm {
 			//STEP 5
 			if (lineCount < n)
 				leastNotCovered(arr1, arr3);
+			pass++;
 		}
 		//STEP 4
 		while (lineCount < n);
-			
-		
-		
-		
-	
-		//else
-			//findSolution();
 	}
 	
 	//covers steps 1 and 2:
@@ -176,31 +168,39 @@ public class HungarianAlgorithm {
 	}
 	
 	//called for each value of 0 in the subtracted array, tallies the number of 0's adjacent to the index horizontally and vertically
+	//returns an integer = cy - cx, where cy
 	public static int hvHigh (int[][] arr, int row, int col){
 		//counter ints to hold the running tally of horizontal and vertical 0's
-		int cx = 0;
-		int cy = 0;
+		int cr = 0;
+		int cc = 0;
 		//tally 0's in the corresponding row
 		for (int i = 0; i < arr.length; i++){
 			if (arr[row][i] == 0)
-				cx++;
+				cr++;
 		}
 		//tally 0's in the corresponding column
 		for (int i = 0; i < arr.length; i++){
 			if (arr[i][col] == 0)
-				cy++;
+				cc++;
 		}
 		
 		//if more 0's on x (horizontal), change to negative and return, if equal # or no adjacent zeros, draw horizontal line
-		if (cx > cy){
-			cx *= -1;
-			return cx;
-		} else if (cy > cx){
-			return cy;
+
+		/* int toReturn = cc - cr;
+		if (toReturn == 0)
+			toReturn = -1;
+		
+		return toReturn; */
+		
+		if (cr > cc){
+			cr *= -1;
+			return cr;
+		} else if (cc > cr){
+			return cc;
 		} else{
 			return -1;
 		}
-	}
+}
 	
 	public static void drawLines(int[][] arr2, int[][] arr3, int row, int col){
 		
