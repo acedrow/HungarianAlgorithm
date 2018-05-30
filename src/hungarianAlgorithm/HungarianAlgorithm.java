@@ -1,4 +1,8 @@
 package hungarianAlgorithm;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+
 public class HungarianAlgorithm {
 	
     /*The Hungarian Method:
@@ -91,25 +95,43 @@ public class HungarianAlgorithm {
 		int[][] arr2 = new int[n][n]; //arr2 holds the number of 0's horizontally or vertically adjacent to the index (whichever is higher)
 		int[][] arr3 = new int[n][n]; //arr3 holds the lines drawn over the array - 1's drawn on an array of 0's
 		
-		for (int i = 0; i < n; i++){
-			for (int j = 0; j < n; j++){
-				if (arr1[i][j] == 0)
-					arr2[i][j] = hvHigh (arr1, i, j);
+		//hvHigh is called on each 0 value in the array in order to generate the adjacency values array arr2.
+		for (int row = 0; row < n; row++){
+			for (int col = 0; col < n; col++){
+				if (arr1[row][col] == 0)
+					arr2[row][col] = hvHigh (arr1, row, col);
 			}
 		}
 		printArray(arr2);
 		
-		for (int i = 0; i < n; i++){
-			for (int j = 0; j < n; j++){
-				if (arr2[i][j] != 0 )
-					drawLines(arr2, arr3, i, j);
+		//OLD DRAWLINES CODE:
+		
+		//drawlines is called on each 0 value, 'drawing a line' in array3, 
+		//and 0ing out arr2 values along the line to prevent duplicate lines.
+		//going through the array from 0,0 to n,n drawing a line at each 0 does not provide optimal vertex covers,
+		//so we're gonna re-write this below.
+		for (int row = 0; row < n; row++){
+			for (int col = 0; col < n; col++){
+				if (arr2[row][col] != 0 )
+					drawLines(arr2, arr3, row, col);
 			}
 		}
-		if (lineCount == n){
-			//find assignment return, (verify with brute force)
-		} else{
-			//do step 5
+		
+		//NEW DRAWLINES CODE:
+		
+		//list to hold a length 3 integer array for each 0, first index holds the 0's arr2 value, 2nd its row, and 3rd its column.
+		ArrayList<int[]> zeroList = new ArrayList<int[]>();
+		//loop through arr2, finding non-zero values, would be quicker to compile zeroList from hvHigh(), when arr2 is completed.
+		for (int row = 0; row < n; row++){
+			for (int col = 0; col < n; col++){
+				if (arr2[row][col] != 0 ) //for non-zero values in arr2, 
+					zeroList.add(new int[]{arr2[row][col],row,col}); //add a corresponding entry in zeroList.
+			}
 		}
+		//sort zeroList
+		zeroList.sort(Comparator.naturalOrder());
+		
+		
 		printArray(arr3);
 		
 		return arr3;
@@ -225,7 +247,7 @@ public class HungarianAlgorithm {
 		}
 	}
 	
-	//Prints the contents of a 2D array to the console
+	//Formats and prints the contents of a 2D array to the console
 	public static void printArray(int[][] toPrint){
 		for (int i = 0; i < toPrint.length; i++){
 			for (int j = 0; j < toPrint[i].length; j++){
