@@ -18,7 +18,7 @@ public class HungarianAlgorithm {
 	public static int n = 0;
 	
 	public static void main (String[] args){
-	
+		
 		//Test arrays
 		//int[][] arr1 = { { 0, 1, 0, 1, 1 }, { 1, 1, 0, 1, 1 }, { 1, 0, 0, 0, 1 },
           //      { 1, 1, 0, 1, 1 }, { 1, 0, 0, 1, 0 } };
@@ -99,37 +99,21 @@ public class HungarianAlgorithm {
 		//hvHigh is called on each 0 value in the array in order to generate the adjacency values array arr2.
 		for (int row = 0; row < n; row++){
 			for (int col = 0; col < n; col++){
+					arr2[row][col] = MAXVALUE+1; //originally set all arr2 values to max+1 to distinguish 0 values.
 				if (arr1[row][col] == 0)
 					arr2[row][col] = hvHigh (arr1, row, col);
 			}
 		}
 		printArray(arr2);
 		
-		//OLD DRAWLINES CODE:
-		
-		//drawlines is called on each 0 value, 'drawing a line' in array3, 
-		//and 0ing out arr2 values along the line to prevent duplicate lines.
-		//going through the array from 0,0 to n,n drawing a line at each 0 does not provide optimal vertex covers,
-		//so we're gonna re-write this below.
-		
-		/* for (int row = 0; row < n; row++){
-			for (int col = 0; col < n; col++){
-				if (arr2[row][col] != 0 ){
-					
-				
-					//drawLines(arr2, arr3, row, col);
-				}
-			}
-		} */
-		
 		//NEW DRAWLINES CODE (draws the 'highest value' lines first):
 		
 		//list to hold a length 3 integer array for each 0, first index holds the 0's arr2 value, 2nd its row, and 3rd its column.
 		ArrayList<int[]> zeroList = new ArrayList<int[]>();
-		//loop through arr2, finding non-zero values, would be quicker to compile zeroList from hvHigh(), when arr2 is completed.
+		//loop through arr2, finding values less than max+1 would be quicker to compile zeroList from hvHigh(), when arr2 is completed.
 		for (int row = 0; row < n; row++){
 			for (int col = 0; col < n; col++){
-				if (arr2[row][col] != 0 )  
+				if (arr2[row][col] <= MAXVALUE)  
 					zeroList.add(new int[]{Math.abs(arr2[row][col]),row,col}); //add a corresponding entry in zeroList.
 			}
 		}
@@ -141,26 +125,26 @@ public class HungarianAlgorithm {
 			}
 		});
 		
-		//starting with the largest arr2 values,for each zero, loop through all adjacent zeros
-		//comparing row and column values, summing row and colum arr2 values. 
-		//(could instead put zero arr2 adjacency info in another array? Might be too much)
-		//if the rowsum > colsum, draw a horizontal line, else draw a vertical line
+		//for each int[] in zeroList, 
 		for(int[] curr : zeroList){
-			if (arr2[curr[1]][curr[2]] == 0) //break if the arr2 value is 0, meaning a line has already been drawn
+			if (arr2[curr[1]][curr[2]] > MAXVALUE) //break if the arr2 value is > MAXVALUE, meaning a line has already been drawn
 				continue;
-			int sum = 0;
-			for (int row = 0; row < n; row++){ //add all arr2 values in curr's column to sum
-				sum += arr2[row][curr[2]];
+			int rowSum = 0;
+			int colSum = 0;
+			for (int row = 0; row < n; row++){ //add all arr2 values in curr's column to sum if <= MAXVALUE
+				if (arr2[row][curr[2]] <= MAXVALUE)
+					colSum++;
 			}
 			for (int col = 0; col < n; col++){ //add all arr2 values in curr's row to sum
-				if (col != curr[2]) //so we don't add the current value twice
-					sum += arr2[curr[1]][col];
+				//if (col != curr[2] && arr2[curr[1]][col] <= MAXVALUE) //so we don't add the current value twice
+				if (arr2[curr[1]][col] <= MAXVALUE)	
+					rowSum++;
 			}
-			if (sum > 0){ 
-				curr[0] = 1; //so that drawLines will draw a vertical line
+			if (colSum < rowSum){
+				arr2[curr[1]][curr[2]] = -1;
 				drawLines(arr2, arr3, curr[1], curr[2]);
 			} else {
-				curr[0] = -1; //so that drawLines will draw a horizontal line
+				arr2[curr[1]][curr[2]] = 1;
 				drawLines(arr2, arr3, curr[1], curr[2]);
 			}	}
 		zeroList.clear();
@@ -222,7 +206,7 @@ public class HungarianAlgorithm {
 	}
 	
 	//called for each value of 0 in the subtracted array, tallies the number of 0's adjacent to the index horizontally and vertically
-	//returns an integer = cy - cx, where cy
+	//returns the number of 0's in the column, or the row, whichever is larger, or 0 if they're equal.
 	public static int hvHigh (int[][] arr, int row, int col){
 		//counter ints to hold the running tally of horizontal and vertical 0's
 		int cr = 0;
@@ -252,38 +236,40 @@ public class HungarianAlgorithm {
 		} else if (cc > cr){
 			return cc;
 		} else{
-			return -1;
+			return 0;
 		}
 }
 	
 	public static void drawLines(int[][] arr2, int[][] arr3, int row, int col){
 		
+		if (arr2[row][col] > MAXVALUE)
+			return;
 		//positive value = vertical line
-		// int num = arr2[row][col];
-		
-		if (arr2[row][col] > 0){
+		if (arr2[row][col] > 0 ){
 			lineCount++;
 			for (int i = 0; i < n; i++){
-				if (arr2[i][col] != 0)
-					arr2[i][col] = 0; //0 out similar values in the same row/column to avoid unnecessary line-drawing
+				arr2[i][col] = MAXVALUE+1; //remove values in the same row/column to avoid unnecessary line-drawing
 				arr3[i][col] = 1;
 			}
 			//negative value = horizontal line
 		} else {
 			lineCount++;
 			for(int i = 0; i < n; i++){
-				if (arr2[row][i] != 0)
-					arr2[row][i] = 0;
+				arr2[row][i] = MAXVALUE+1;
 				arr3[row][i] = 1;
 			}
 		}
 	}
 	
 	//Formats and prints the contents of a 2D array to the console
+	//if a value is larger than MAXVALUE (in the case of arr2), prints a hyphen
 	public static void printArray(int[][] toPrint){
-		for (int i = 0; i < toPrint.length; i++){
-			for (int j = 0; j < toPrint[i].length; j++){
-				System.out.print(toPrint[i][j] + "\t");
+		for (int row = 0; row < toPrint.length; row++){
+			for (int col = 0; col < toPrint[row].length; col++){
+				if (toPrint[row][col] > MAXVALUE)
+					System.out.print("-" + "\t");
+				else
+					System.out.print(toPrint[row][col] + "\t");
 			}
 			System.out.println("");
 		}
