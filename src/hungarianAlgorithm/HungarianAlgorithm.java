@@ -1,6 +1,7 @@
 package hungarianAlgorithm;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 
 public class HungarianAlgorithm {
@@ -110,28 +111,59 @@ public class HungarianAlgorithm {
 		//and 0ing out arr2 values along the line to prevent duplicate lines.
 		//going through the array from 0,0 to n,n drawing a line at each 0 does not provide optimal vertex covers,
 		//so we're gonna re-write this below.
-		for (int row = 0; row < n; row++){
-			for (int col = 0; col < n; col++){
-				if (arr2[row][col] != 0 )
-					drawLines(arr2, arr3, row, col);
-			}
-		}
 		
-		//NEW DRAWLINES CODE:
+		/* for (int row = 0; row < n; row++){
+			for (int col = 0; col < n; col++){
+				if (arr2[row][col] != 0 ){
+					
+				
+					//drawLines(arr2, arr3, row, col);
+				}
+			}
+		} */
+		
+		//NEW DRAWLINES CODE (draws the 'highest value' lines first):
 		
 		//list to hold a length 3 integer array for each 0, first index holds the 0's arr2 value, 2nd its row, and 3rd its column.
 		ArrayList<int[]> zeroList = new ArrayList<int[]>();
 		//loop through arr2, finding non-zero values, would be quicker to compile zeroList from hvHigh(), when arr2 is completed.
 		for (int row = 0; row < n; row++){
 			for (int col = 0; col < n; col++){
-				if (arr2[row][col] != 0 ) //for non-zero values in arr2, 
-					zeroList.add(new int[]{arr2[row][col],row,col}); //add a corresponding entry in zeroList.
+				if (arr2[row][col] != 0 )  
+					zeroList.add(new int[]{Math.abs(arr2[row][col]),row,col}); //add a corresponding entry in zeroList.
 			}
 		}
-		//sort zeroList
-		zeroList.sort(Comparator.naturalOrder());
+		Collections.sort(zeroList, new Comparator<int[]>(){ //sort zero list
+			//sorts zeroList by the value of index 0 of each member array in descending order
+			public int compare(int[] a, int[] b) {
+				Integer aint = b[0];
+				return aint.compareTo(a[0]);
+			}
+		});
 		
-		
+		//starting with the largest arr2 values,for each zero, loop through all adjacent zeros
+		//comparing row and column values, summing row and colum arr2 values. 
+		//(could instead put zero arr2 adjacency info in another array? Might be too much)
+		//if the rowsum > colsum, draw a horizontal line, else draw a vertical line
+		for(int[] curr : zeroList){
+			if (arr2[curr[1]][curr[2]] == 0) //break if the arr2 value is 0, meaning a line has already been drawn
+				continue;
+			int sum = 0;
+			for (int row = 0; row < n; row++){ //add all arr2 values in curr's column to sum
+				sum += arr2[row][curr[2]];
+			}
+			for (int col = 0; col < n; col++){ //add all arr2 values in curr's row to sum
+				if (col != curr[2]) //so we don't add the current value twice
+					sum += arr2[curr[1]][col];
+			}
+			if (sum > 0){ 
+				curr[0] = 1; //so that drawLines will draw a vertical line
+				drawLines(arr2, arr3, curr[1], curr[2]);
+			} else {
+				curr[0] = -1; //so that drawLines will draw a horizontal line
+				drawLines(arr2, arr3, curr[1], curr[2]);
+			}	}
+		zeroList.clear();
 		printArray(arr3);
 		
 		return arr3;
