@@ -53,40 +53,7 @@ public class HungarianAlgorithm {
 		while (lineCount < n);
 	}
 	
-	//covers steps 1 and 2:
-	//subtracting the smallest entry in each row from every other value in the row, 
-	//and do the same for columns
-	public static int[][] subMin(int[][] arr1){
-		//rows
-		int min;
-		for (int row = 0; row < n; row++){
-			min = MAXVALUE + 1;
-			//first loop to find the minimum value per row
-			for (int col = 0; col < n; col++){
-				if (arr1[row][col] < min)
-					min = arr1[row][col];
-			}
-			//second loop to subtract minimum from each value in the row
-			for (int col = 0; col < n; col++){
-				arr1[row][col] = arr1[row][col] - min;
-			}
-		}
-		//columns
-		for (int col = 0; col < n; col++){
-			min = MAXVALUE + 1;
-			//first loop to find the minimum value per col
-			for (int row = 0; row < n; row++){
-				if (arr1[row][col] < min)
-					min = arr1[row][col];
-			}
-			//second loop to subtract minimum from each value in the col
-			for (int row = 0; row < n; row++){
-				arr1[row][col] = arr1[row][col] - min;
-			}
-		}
-		
-		return arr1;
-	}
+	
 	
 	//step 3
 	//Method to draw min-vertex cover lines over the previously-0'd array arr
@@ -105,27 +72,9 @@ public class HungarianAlgorithm {
 			}
 		}
 		printArray(arr2);
+		ArrayList<int[]> zeroList = listZeros(arr2);
 		
-		//NEW DRAWLINES CODE (draws the 'highest value' lines first):
-		
-		//list to hold a length 3 integer array for each 0, first index holds the 0's arr2 value, 2nd its row, and 3rd its column.
-		ArrayList<int[]> zeroList = new ArrayList<int[]>();
-		//loop through arr2, finding values less than max+1 would be quicker to compile zeroList from hvHigh(), when arr2 is completed.
-		for (int row = 0; row < n; row++){
-			for (int col = 0; col < n; col++){
-				if (arr2[row][col] <= MAXVALUE)  
-					zeroList.add(new int[]{Math.abs(arr2[row][col]),row,col}); //add a corresponding entry in zeroList.
-			}
-		}
-		Collections.sort(zeroList, new Comparator<int[]>(){ //sort zero list
-			//sorts zeroList by the value of index 0 of each member array in descending order
-			public int compare(int[] a, int[] b) {
-				Integer aint = b[0];
-				return aint.compareTo(a[0]);
-			}
-		});
-		
-		//for each int[] in zeroList, 
+		//NEW DRAWLINES CODE (draws the 'highest value' lines first): 
 		for(int[] curr : zeroList){
 			if (arr2[curr[1]][curr[2]] > MAXVALUE) //break if the arr2 value is > MAXVALUE, meaning a line has already been drawn
 				continue;
@@ -140,7 +89,7 @@ public class HungarianAlgorithm {
 				if (arr2[curr[1]][col] <= MAXVALUE)	
 					rowSum++;
 			}
-			if (colSum < rowSum){
+			if (rowSum > colSum){
 				arr2[curr[1]][curr[2]] = -1;
 				drawLines(arr2, arr3, curr[1], curr[2]);
 			} else {
@@ -205,6 +154,29 @@ public class HungarianAlgorithm {
 		return arr1;
 	}
 	
+	//creates an arrayList of every non-max value in arr2, sorts them by value, returns that arrayList
+	public static ArrayList<int[]> listZeros (int[][] arr2){
+		//list to hold a length 3 integer array for each 0, first index holds the 0's arr2 value, 2nd its row, and 3rd its column.
+				ArrayList<int[]> zeroList = new ArrayList<int[]>();
+				//loop through arr2, finding values less than max+1 would be quicker to compile zeroList from hvHigh(), when arr2 is completed.
+				for (int row = 0; row < n; row++){
+					for (int col = 0; col < n; col++){
+						if (arr2[row][col] <= MAXVALUE)  
+							zeroList.add(new int[]{Math.abs(arr2[row][col]),row,col}); //add a corresponding entry in zeroList.
+					}
+				}
+				Collections.sort(zeroList, new Comparator<int[]>(){ //sort zero list
+					//sorts zeroList by the value of index 0 of each member array in descending order
+					@Override
+					public int compare(int[] a, int[] b) {
+						Integer aint = b[0];
+						return aint.compareTo(a[0]);
+					}
+				});
+			
+			return zeroList;		
+	}
+	
 	//called for each value of 0 in the subtracted array, tallies the number of 0's adjacent to the index horizontally and vertically
 	//returns the number of 0's in the column, or the row, whichever is larger, or 0 if they're equal.
 	public static int hvHigh (int[][] arr, int row, int col){
@@ -239,20 +211,19 @@ public class HungarianAlgorithm {
 			return 0;
 		}
 }
-	
+	//given a specified index, 'draws a line' (writes 1 values to arr3) along an arr3 row or column based on the specified arr2 value
+	//a positive arr2 value indicates a vertical line, a negative value indicates a horizontal line
 	public static void drawLines(int[][] arr2, int[][] arr3, int row, int col){
 		
 		if (arr2[row][col] > MAXVALUE)
 			return;
-		//positive value = vertical line
-		if (arr2[row][col] > 0 ){
+		if (arr2[row][col] > 0 ){//positive value = vertical line
 			lineCount++;
 			for (int i = 0; i < n; i++){
 				arr2[i][col] = MAXVALUE+1; //remove values in the same row/column to avoid unnecessary line-drawing
 				arr3[i][col] = 1;
 			}
-			//negative value = horizontal line
-		} else {
+		} else {			//negative value = horizontal line
 			lineCount++;
 			for(int i = 0; i < n; i++){
 				arr2[row][i] = MAXVALUE+1;
@@ -260,6 +231,40 @@ public class HungarianAlgorithm {
 			}
 		}
 	}
+	
+	//covers steps 1 and 2:
+		//subtracting the smallest entry in each row from every other value in the row, 
+		//and do the same for columns
+		public static int[][] subMin(int[][] arr1){
+			//rows
+			int min;
+			for (int row = 0; row < n; row++){
+				min = MAXVALUE + 1;
+				//first loop to find the minimum value per row
+				for (int col = 0; col < n; col++){
+					if (arr1[row][col] < min)
+						min = arr1[row][col];
+				}
+				//second loop to subtract minimum from each value in the row
+				for (int col = 0; col < n; col++){
+					arr1[row][col] = arr1[row][col] - min;
+				}
+			}
+			//columns
+			for (int col = 0; col < n; col++){
+				min = MAXVALUE + 1;
+				//first loop to find the minimum value per col
+				for (int row = 0; row < n; row++){
+					if (arr1[row][col] < min)
+						min = arr1[row][col];
+				}
+				//second loop to subtract minimum from each value in the col
+				for (int row = 0; row < n; row++){
+					arr1[row][col] = arr1[row][col] - min;
+				}
+			}
+			return arr1;
+		}
 	
 	//Formats and prints the contents of a 2D array to the console
 	//if a value is larger than MAXVALUE (in the case of arr2), prints a hyphen
