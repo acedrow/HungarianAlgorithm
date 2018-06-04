@@ -20,10 +20,10 @@ public class HungarianAlgorithm {
 	public static void main (String[] args){
 		
 		//Test arrays
-		//int[][] arr1 = { { 0, 1, 0, 1, 1 }, { 1, 1, 0, 1, 1 }, { 1, 0, 0, 0, 1 },
-          //      { 1, 1, 0, 1, 1 }, { 1, 0, 0, 1, 0 } };
-		int[][] arr1 = { { 56, 23, 89, 1, 3 }, { 7, 14, 75, 90, 22 }, { 9, 47, 50, 12, 84 },
-                { 32, 51, 94, 29, 16 }, { 6, 7, 30, 85, 99 } };
+		//int[][] arr1 = { { 0, 1, 0, 1, 1 }, { 1, 1, 0, 1, 1 }, { 1, 0, 0, 0, 1 }, { 1, 1, 0, 1, 1 }, { 1, 0, 0, 1, 0 } };    
+		int[][] original = { { 56, 23, 89, 1, 3 }, { 7, 14, 75, 90, 22 }, { 9, 47, 50, 12, 84 }, { 32, 51, 94, 29, 16 }, { 6, 7, 30, 85, 99 } };
+               
+		int[][] arr1 = original;
 		
 		n = arr1.length;
 		
@@ -51,6 +51,7 @@ public class HungarianAlgorithm {
 		}
 		//STEP 4
 		while (lineCount < n);
+		findSolution(original, arr1, arr3);
 	}
 	
 	
@@ -152,6 +153,39 @@ public class HungarianAlgorithm {
 		}
 		
 		return arr1;
+	}
+	
+	public static ArrayList<int[]> findSolution(int[][] original, int[][] arr1, int[][] arr3){
+		ArrayList<int[]> markedList = new ArrayList<int[]>();
+		ArrayList<int[]> solution = new ArrayList<int[]>();
+		boolean marked = true;
+		for (int col = 0; col < n; col++){ //loop through columns
+			int zeros = 0;
+			for (int row = 0; row < n; row++){ //loop through rows
+				marked = true; //might not need this
+				if (arr3[row][col] != 1){
+					marked = false;
+					break; //break or continue?
+				}
+				if (arr1[row][col] == 0){
+					zeros++;
+					markedList.add(new int[]{original[row][col], row, col});
+				}
+			}
+			/*if we find a column with a single zero, check its row, 
+			if the row isn't marked, or its the only zero in a marked row (shouldn't be possible but...)
+			then it's part of our solution. add it to the solution and remove it from the markedList*/
+			if (marked && zeros == 1){ 
+				for (int coll = 0; coll < n; coll++){
+					
+				}
+				for (int[] zero : markedList){
+					solution.add(markedList.remove(markedList.size()-1));
+				}
+			} 
+		}
+		
+		return solution;
 	}
 	
 	//creates an arrayList of every non-max value in arr2, sorts them by value, returns that arrayList
