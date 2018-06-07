@@ -22,10 +22,14 @@ public class HungarianAlgorithm {
 		//Test arrays
 		//int[][] arr1 = { { 0, 1, 0, 1, 1 }, { 1, 1, 0, 1, 1 }, { 1, 0, 0, 0, 1 }, { 1, 1, 0, 1, 1 }, { 1, 0, 0, 1, 0 } };    
 		int[][] original = { { 56, 23, 89, 1, 3 }, { 7, 14, 75, 90, 22 }, { 9, 47, 50, 12, 84 }, { 32, 51, 94, 29, 16 }, { 6, 7, 30, 85, 99 } };
-               
-		int[][] arr1 = original;
+		n = original.length;
+		int[][] arr1 = new int[n][n];
 		
-		n = arr1.length;
+		for (int row = 0; row < n; row++){
+			for (int col = 0; col < n; col++){
+				arr1[row][col] = original[row][col];
+			}
+		}
 		
 		int[][]arr3 = null;
 		//print initial array
@@ -159,6 +163,7 @@ public class HungarianAlgorithm {
 		ArrayList<int[]> markedList = new ArrayList<int[]>();
 		ArrayList<int[]> solution = new ArrayList<int[]>();
 		boolean marked = true;
+		//First check each column for 0's, record each 0, along with it's position in markedList
 		for (int col = 0; col < n; col++){ //loop through columns
 			int zeros = 0;
 			for (int row = 0; row < n; row++){ //loop through rows
