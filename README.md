@@ -1,0 +1,1 @@
+Implements the hungarian algorithm to solve the assignment problem. Algorithm complexity analysis to follow on completion. 
