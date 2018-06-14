@@ -159,37 +159,54 @@ public class HungarianAlgorithm {
 		return arr1;
 	}
 	
+	//NEED TO TEST THIS:
 	public static ArrayList<int[]> findSolution(int[][] original, int[][] arr1, int[][] arr3){
 		ArrayList<int[]> markedList = new ArrayList<int[]>();
 		ArrayList<int[]> solution = new ArrayList<int[]>();
-		boolean marked = true;
-		//First check each column for 0's, record each 0, along with it's position in markedList
-		for (int col = 0; col < n; col++){ //loop through columns
-			int zeros = 0;
-			for (int row = 0; row < n; row++){ //loop through rows
-				marked = true; //might not need this
-				if (arr3[row][col] != 1){
-					marked = false;
-					break; //break or continue?
-				}
+		ArrayList<int[]> zeroList = new ArrayList<int[]>();
+		
+		// Put all values of 0 in arr1 into the zeroList
+		for (int row = 0; row < arr1.length; row++){
+			for (int col = 0; col < arr1.length; col++){
 				if (arr1[row][col] == 0){
-					zeros++;
-					markedList.add(new int[]{original[row][col], row, col});
+					zeroList.add(new int[]{row, col, 0});
 				}
 			}
-			/*if we find a column with a single zero, check its row, 
-			if the row isn't marked, or its the only zero in a marked row (shouldn't be possible but...)
-			then it's part of our solution. add it to the solution and remove it from the markedList*/
-			if (marked && zeros == 1){ 
-				for (int coll = 0; coll < n; coll++){
-					
+		}
+		//foreach zero value, tally all adjacent zeros, add to [2] of the zeroList array.
+		for (int[] zero : zeroList){
+			int adj = 0;
+			for (int row = 0; row < arr1.length; row++){
+				for (int col = 0; col < arr1.length; col++){
+					if (row != zero[0] && col != zero[1]){
+						adj++;
+					}
 				}
-				for (int[] zero : markedList){
-					solution.add(markedList.remove(markedList.size()-1));
+			}
+			zero[2] = adj;
+		}
+		//sort zeroList by adj, should sort in ascending order, swap a[0] and b[0] if that's not the case
+		Collections.sort(zeroList, new Comparator<int[]>(){ //sort zero list
+			@Override
+			public int compare(int[] a, int[] b) {
+				Integer aint = a[0];
+				return aint.compareTo(b[0]);
+			}
+		});
+		//in ascending order of adjacent 0's, for each zero delete adjacent zeros (if any), and add the current 0 to the solution list
+		for (int[] zero : zeroList){
+			if (zero[2] != 0){
+				for (int [] zero2 : zeroList){
+					//jesus fuck this is ugly. It's an XOR.
+					if ((zero2[0] == zero[0] || zero2[1] == zero[1]) &&! (zero2[0] == zero[0] && zero2[1] == zero[1])){
+						zeroList.remove(zero2);
+					}
 				}
-			} 
+			}
+			solution.add(zeroList.remove(zero));
 		}
 		
+	
 		return solution;
 	}
 	
