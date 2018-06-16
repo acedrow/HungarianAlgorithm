@@ -55,7 +55,9 @@ public class HungarianAlgorithm {
 		}
 		//STEP 4
 		while (lineCount < n);
-		findSolution(original, arr1, arr3);
+		int[] arraySolution = findSolution(original, arr1, arr3);
+		System.out.println(arraySolution);
+		
 	}
 	
 	
@@ -160,7 +162,7 @@ public class HungarianAlgorithm {
 	}
 	
 	//NEED TO TEST THIS:
-	public static ArrayList<int[]> findSolution(int[][] original, int[][] arr1, int[][] arr3){
+	public static int[] findSolution(int[][] original, int[][] arr1, int[][] arr3){
 		ArrayList<int[]> markedList = new ArrayList<int[]>();
 		ArrayList<int[]> solution = new ArrayList<int[]>();
 		ArrayList<int[]> zeroList = new ArrayList<int[]>();
@@ -177,37 +179,57 @@ public class HungarianAlgorithm {
 		for (int[] zero : zeroList){
 			int adj = 0;
 			for (int row = 0; row < arr1.length; row++){
-				for (int col = 0; col < arr1.length; col++){
-					if (row != zero[0] && col != zero[1]){
+					if (arr1[row][zero[1]] == 0){
 						adj++;
 					}
+			}
+			for (int col = 0; col < arr1.length; col++){
+				if (arr1[zero[0]][col] == 0){
+					adj++;
 				}
 			}
+			adj -= 2;
 			zero[2] = adj;
 		}
 		//sort zeroList by adj, should sort in ascending order, swap a[0] and b[0] if that's not the case
 		Collections.sort(zeroList, new Comparator<int[]>(){ //sort zero list
 			@Override
 			public int compare(int[] a, int[] b) {
+				Integer aint = a[2];
+				return aint.compareTo(b[2]);
+			}
+		});
+		//in ascending order of adjacent 0's, for each zero delete adjacent zeros (if any), and add the current 0 to the solution list
+		while (zeroList.size() > 0){
+			int[] zero = zeroList.get(0);
+			if (zero[2] != 0){
+				for (int i = 0; i < zeroList.size(); i++){
+					int[] zero2 = zeroList.get(i);
+					//jesus fuck this is ugly. It's an XOR.
+					if ((zero2[0] == zero[0] || zero2[1] == zero[1]) &&! (zero2[0] == zero[0] && zero2[1] == zero[1])){
+						zeroList.remove(zero2);
+						i--;
+					}
+				}
+			}
+			solution.add(zeroList.remove(0));
+		}
+		
+		int arraySolution[] = new int[n];
+		//sort solution by row
+		Collections.sort(solution, new Comparator<int[]>(){ //sort zero list
+			@Override
+			public int compare(int[] a, int[] b) {
 				Integer aint = a[0];
 				return aint.compareTo(b[0]);
 			}
 		});
-		//in ascending order of adjacent 0's, for each zero delete adjacent zeros (if any), and add the current 0 to the solution list
-		for (int[] zero : zeroList){
-			if (zero[2] != 0){
-				for (int [] zero2 : zeroList){
-					//jesus fuck this is ugly. It's an XOR.
-					if ((zero2[0] == zero[0] || zero2[1] == zero[1]) &&! (zero2[0] == zero[0] && zero2[1] == zero[1])){
-						zeroList.remove(zero2);
-					}
-				}
-			}
-			solution.add(zeroList.remove(zero));
+		
+		for (int i = 0; i < n; i++){
+			arraySolution[i] = solution.get(i)[1];
 		}
 		
-	
-		return solution;
+		return arraySolution;
 	}
 	
 	//creates an arrayList of every non-max value in arr2, sorts them by value, returns that arrayList
