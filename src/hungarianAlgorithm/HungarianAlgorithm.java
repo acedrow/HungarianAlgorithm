@@ -21,8 +21,9 @@ public class HungarianAlgorithm {
 		
 		//Test arrays
 		//int[][] arr1 = { { 0, 1, 0, 1, 1 }, { 1, 1, 0, 1, 1 }, { 1, 0, 0, 0, 1 }, { 1, 1, 0, 1, 1 }, { 1, 0, 0, 1, 0 } };    
-		int[][] original = { { 56, 23, 89, 1, 3 }, { 7, 14, 75, 90, 22 }, { 9, 47, 50, 12, 84 }, { 32, 51, 94, 29, 16 }, { 6, 7, 30, 85, 99 } };
-		n = original.length;
+		//int[][] original = { { 56, 23, 89, 1, 3 }, { 7, 14, 75, 90, 22 }, { 9, 47, 50, 12, 84 }, { 32, 51, 94, 29, 16 }, { 6, 7, 30, 85, 99 } };
+		n = 5;
+		int[][] original = randomizeInput();
 		int[][] arr1 = new int[n][n];
 		
 		for (int row = 0; row < n; row++){
@@ -357,5 +358,15 @@ public class HungarianAlgorithm {
 			System.out.println("");
 		}
 		System.out.println("");
+	}
+	public static int[][] randomizeInput (){
+		int toReturn[][] = new int[n][n];
+		for (int row = 0; row < n; row++){
+			for (int col = 0; col < n; col++){
+				toReturn[row][col] = (int) ((Math.random() * MAXVALUE) + 1);
+			}
+		}
+		
+		return toReturn;
 	}
 }
